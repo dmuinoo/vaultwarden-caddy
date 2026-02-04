@@ -1,0 +1,89 @@
+version: "2.0"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - vw_pgdata:/var/lib/postgresql/data
+        # Futuro: carpeta para archivar el WAL
+        # - ./pg_wal_archive:/var/lib/postgresql/wal_archive
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - vw_net
+  #===================================================
+  # FUTURO (WAL / DR)
+  #===================================================
+  # Para replicacion/DR de verdad, lo ideal es:
+  # - streaming replication a un servidor en standby
+  # - o WAL archiving continuo a un storage/servidor
+  #
+  # Ejemplo (No activar ahora): archiving WAL a /var/lib/postgresql/wal_archive
+  # command: >
+  #   postgres
+  #     -c wal_level=replica
+  #     -c archive_mode=on
+  #     -c archive_command='test ! -f /var/lib/postgresql/wal_archive/%f && cp %p /var/lib/postgresql/wal_archive/%f'
+  #     -c max_wal_senders=10
+  #     -c wal_keep_size=10MB
+  #
+  # Para streaming a un standby futuro necesitaras ademas:
+  #   - crear usuario replication
+  #   - pg_hba.conf permitiendo la IP del standby
+  #   - en el standby: pg_basebackup + primary_conninfo
+  #
+  # Esto lo montamos cuando tengamos el 2º servidor
+  # ===================================================
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: 
+      DOMAIN: "https://local.ss:4443"
+      ROCKET_PORT: 80
+      ADMIN_TOKEN: "cssKGrf7DIpB6W6t1kuuQnYMjSx4a43aejLYDZytPrtqEXMemH81tU/IR0x+chvC"
+      WEBSOCKET_ENABLED: "true"
+
+      # PostgreSQL en vez de SQLite:
+      DABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
+      
+      # Opcional recomendado:
+      # SIGNUPS_ALLOWED: "false"
+      # INVITATIONS_ALLOWED: "false"
+
+    volumes:
+      - /docker/vaultwarden:/data
+    expose:
+      - "80"
+    networks:
+      - vw_net
+
+  caddy:
+    image: caddy:2
+    container_name: vm-caddy
+    restart: unless-stopped
+    ports:
+      - "8085:80"
+      - "4443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${HOME}/vaultwarden-local/certs:/certs:ro
+    networks:
+      - vw_net
+volumes:
+  vw_pgdata:
+networks:
+  vw_net:
+    driver: bridge
