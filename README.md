@@ -1,10 +1,60 @@
-<<<<<<< HEAD
 # vaultwarden-caddy
 Se trata de un dockercompose para montar de forma automatica VaultWarden con Caddy como proxy https
 =======
 # Vaultwarden + Caddy (Reverse Proxy TLS) — Stack README
 
 Este stack despliega **Vaultwarden** (servidor compatible Bitwarden) detrás de **Caddy** como **reverse proxy TLS**. Está pensado para uso en VM o servidor, con persistencia y un enfoque “production-friendly” (certificados automáticos, headers, compresión, límites razonables y backups).
+
+## Este stack es para montar automaticamente un sistema de gestion de llaves, Vaultwarden (Es un fork opensource de Bitwarden):
+
+Vaultwarden es una implementación ligera del servidor de Bitwarden escrita en Rust.
+
+    * Características arquitectónicas:
+    * Servidor centralizado (auto-hosted)
+    * API REST compatible con clientes Bitwarden
+    * Base de datos (SQLite/PostgreSQL)
+    * Acceso vía web + apps móviles + extensiones
+    * Sincronización en tiempo real
+
+🔐 Seguridad
+
+    * Cifrado end-to-end (modelo Bitwarden)
+    * Zero-knowledge encryption
+    * 2FA integrado (TOTP, WebAuthn)
+    * Control de acceso multiusuario
+    * Logs y auditoría
+    * Compartición segura de secretos
+    * Políticas organizativas
+
+👥 Multiusuario y colaboración
+
+ Ventaja clara aquí:
+    * Organizaciones
+    * Colecciones compartidas
+    * Gestión de permisos
+    * Equipos
+    * Sincronización automática
+   👉 Diseñado para equipos.
+
+🌐 Acceso multiplataforma
+
+    * Clientes oficiales Bitwarden:
+    * Web
+    * iOS / Android
+    * Windows / macOS / Linux
+    * Extensiones de navegador
+    * Todo sincronizado.
+
+🚀 Despliegue y operación
+
+  Requiere:
+     * Docker / servidor
+     * Backup de base de datos
+     * HTTPS
+     * Gestión de certificados
+     * Hardening
+
+👉 Es básicamente un servicio de contraseñas en red.
 
 > Nota: Vaultwarden puede usar **SQLite** o **PostgreSQL**. Para alta disponibilidad (HA) real y múltiples instancias, **PostgreSQL** es lo recomendado.
 
