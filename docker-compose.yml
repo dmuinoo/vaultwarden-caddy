@@ -84,6 +84,7 @@ services:
       - vw_net
 volumes:
   vw_pgdata:
+    name: vw_pgdata
 networks:
   vw_net:
     driver: bridge
