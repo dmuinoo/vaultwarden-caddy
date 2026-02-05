@@ -183,5 +183,4 @@ Con **2 nodos**, la combinación más común y robusta es:
   - proxy de `/notifications/hub` como WebSocket
 - `/admin` expuesto:
   - proteger con allowlist o BasicAuth delante del proxy
-
->>>>>>> b15002a... Se añade el readme
+e
